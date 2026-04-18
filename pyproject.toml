@@ -1,0 +1,16 @@
+[project]
+name = "daily-log"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.136.0",
+    "mypy>=1.20.1",
+    "types-requests>=2.33.0.20260408",
+    "uv>=0.11.7",
+    "uvicorn>=0.44.0",
+]
+
+[tool.mypy]
+strict = true
