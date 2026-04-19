@@ -3,8 +3,17 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from db.initialization import init_db
 from db.operations import insert_entry, get_all_entries
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5500"],  # your frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 init_db()
 
