@@ -28,5 +28,6 @@ def create_entry(entry: EntryCreate) -> EntryResponse:
     return EntryResponse(**row)
 
 @app.get("/entries", response_model=list[EntryResponse])
-def get_entries():
-    return 0
+def get_entries() -> list[EntryResponse]:
+    results = get_all_entries()
+    return [EntryResponse(**row) for row in results]
