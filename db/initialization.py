@@ -1,12 +1,4 @@
-from db.connection import get_connection
+from db.database import Base, engine
 
 def init_db() -> None:
-    with get_connection() as conn:
-        conn.execute('''
-        CREATE TABLE IF NOT EXISTS entries (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            content TEXT NOT NULL,
-            tag TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )                                 
-        ''')
+    Base.metadata.create_all(bind=engine)

@@ -1,117 +1,47 @@
-from datetime import datetime
-import sqlite3
-from typing import TypedDict
-
-from db.connection import get_connection
+from sqlalchemy.orm import Session
+from db.models import Entry
 
 
-class EntryOut(TypedDict):
-    id: int
-    content: str
-    tag: str | None
-    created_at: datetime
+def insert_entry(db: Session, content: str, tag: str | None = None) -> Entry:
+    entry = Entry(content=content, tag=tag)
+
+    db.add(entry)
+    db.commit()
+    db.refresh(entry)
+
+    return entry
 
 
-def row_to_entry(row: sqlite3.Row) -> EntryOut:
-    return {
-        "id": row["id"],
-        "content": row["content"],
-        "tag": row["tag"],
-        "created_at": row["created_at"],
-    }
+def get_all_entries(db: Session) -> list[Entry]:
+    return (
+        db.query(Entry)
+        .order_by(Entry.created_at.desc())
+        .all()
+    )
 
 
-def insert_entry(content: str, tag: str | None = None) -> EntryOut:
-    with get_connection() as conn:
-        cursor = conn.cursor()
+def update_entry(db: Session, entry_id: int, content: str, tag: str | None = None) -> Entry | None:
+    entry = db.query(Entry).filter(Entry.id == entry_id).first()
 
-        cursor.execute(
-            """
-            INSERT INTO entries (content, tag)
-            VALUES (?, ?)
-            """,
-            (content, tag),
-        )
+    if not entry:
+        return None
 
-        entry_id = cursor.lastrowid
+    entry.content = content
+    entry.tag = tag
 
-        cursor.execute(
-            """
-            SELECT id, content, tag, created_at
-            FROM entries
-            WHERE id = ?
-            """,
-            (entry_id,),
-        )
+    db.commit()
+    db.refresh(entry)
 
-        row = cursor.fetchone()
-
-        if row is None:
-            raise RuntimeError("Insert failed")
-
-        conn.commit()
-        return row_to_entry(row)
+    return entry
 
 
-def get_all_entries() -> list[EntryOut]:
-    with get_connection() as conn:
-        cursor = conn.cursor()
+def delete_entry_db(db: Session, entry_id: int) -> bool:
+    entry = db.query(Entry).filter(Entry.id == entry_id).first()
 
-        cursor.execute(
-            """
-            SELECT id, content, tag, created_at
-            FROM entries
-            ORDER BY created_at DESC
-            """
-        )
+    if not entry:
+        return False
 
-        rows = cursor.fetchall()
-        return [row_to_entry(row) for row in rows]
+    db.delete(entry)
+    db.commit()
 
-
-def delete_entry_db(entry_id: int) -> bool:
-    with get_connection() as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            DELETE FROM entries
-            WHERE id = ?
-            """,
-            (entry_id,),
-        )
-
-        conn.commit()
-
-        return cursor.rowcount > 0
-
-
-def update_entry(entry_id: int, content: str, tag: str | None = None) -> EntryOut | None:
-    with get_connection() as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            UPDATE entries
-            SET content = ?, tag = ?
-            WHERE id = ?
-            """,
-            (content, tag, entry_id),
-        )
-
-        if cursor.rowcount == 0:
-            return None
-
-        cursor.execute(
-            """
-            SELECT id, content, tag, created_at
-            FROM entries
-            WHERE id = ?
-            """,
-            (entry_id,),
-        )
-
-        row = cursor.fetchone()
-        conn.commit()
-
-        return row_to_entry(row) if row else None
+    return True
