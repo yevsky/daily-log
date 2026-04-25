@@ -4,52 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Daily Log</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-        }
-
-    form {
-        margin-bottom: 20px;
-    }
-
-    input, button {
-        padding: 8px;
-        margin-right: 8px;
-    }
-
-    .entry {
-        border-bottom: 1px solid #ccc;
-        padding: 10px 0;
-    }
-
-    .tag {
-        color: #666;
-        font-size: 0.9em;
-    }
-
-    .date {
-        color: #999;
-        font-size: 0.8em;
-    }
-</style>
-
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h1>Daily Log</h1>
+<div class="container">
 
-<form id="entry-form">
-    <input type="text" id="content" placeholder="Write something..." required />
-    <input type="text" id="tag" placeholder="Tag (optional)" />
-    <button type="submit">Add</button>
-</form>
+    <h1>Daily Log</h1>
 
-<div id="entries"></div>
+    <form id="entry-form">
+        <input type="text" id="content" placeholder="Write something" required />
+        <input type="text" id="tag" placeholder="Tag (optional)" />
+        <button type="submit">Add</button>
+    </form>
+
+    <div id="entries"></div>
+
+</div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
